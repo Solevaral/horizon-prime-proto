@@ -10,6 +10,7 @@ enum class MsgType : uint8_t {
     C_CHAT          = 0x03,
     C_DISCONNECT    = 0x04,
     C_INPUT         = 0x05,  // terminal command input
+    C_HELLO         = 0x06,  // first packet: client announces PROTOCOL_VERSION
 
     // Server -> Client (legacy)
     S_AUTH_OK       = 0x10,

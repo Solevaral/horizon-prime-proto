@@ -2,6 +2,12 @@
 
 namespace hp {
 
+// Bump this whenever the client/server wire format or required client
+// behaviour changes. The server requires an exact match and rejects any other
+// client version at connect time. Keep client and server built from the same
+// proto submodule commit.
+constexpr unsigned int   PROTOCOL_VERSION = 1;
+
 constexpr unsigned short SERVER_PORT      = 7777;
 constexpr int            MAX_PLAYERS      = 64;
 constexpr int            MAX_PACKET_SIZE  = 4096;

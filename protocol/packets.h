@@ -15,6 +15,13 @@ struct PacketHeader {
 
 // ── Client -> Server ────────────────────────────────────────────────────────
 
+// First packet the client sends after connecting. The server verifies
+// `version` against PROTOCOL_VERSION and rejects mismatches before auth.
+struct PktHello {
+    PacketHeader header;
+    uint32_t     version;   // network byte order
+};
+
 struct PktLogin {
     PacketHeader header;
     char nickname[NICKNAME_MAX_LEN];
