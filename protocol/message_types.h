@@ -31,6 +31,7 @@ enum class MsgType : uint8_t {
     S_TERM_SOUND    = 0x25,  // play a sound effect (id byte)
     S_TERM_CHAT     = 0x26,  // chat message (separate from terminal output)
     S_STATS         = 0x27,  // player statistics (for overlay)
+    S_REPORT_LIST   = 0x28,  // open the report overlay with a list of reports
     S_LOGOUT        = 0x30,  // force client back to login screen
 };
 

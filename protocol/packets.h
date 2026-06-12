@@ -45,6 +45,7 @@ struct PktAuthOk {
     int32_t  sector_x;
     int32_t  sector_y;
     int32_t  sector_z;
+    int32_t  access;             // 0=admin, 1=mod, 2=helper, 3=user
     char     nickname[NICKNAME_MAX_LEN];
 };
 
