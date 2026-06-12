@@ -1,0 +1,14 @@
+# Build output
+/build/
+/dist/
+*.o
+*.a
+*.pb.cc
+*.pb.h
+*.pb.go
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
