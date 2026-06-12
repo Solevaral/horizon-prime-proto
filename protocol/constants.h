@@ -11,5 +11,6 @@ constexpr int            MESSAGE_MAX_LEN  = 256;
 
 constexpr int SPAWN_SECTOR_X = 0;
 constexpr int SPAWN_SECTOR_Y = 0;
+constexpr int SPAWN_SECTOR_Z = 0;
 
 } // namespace hp

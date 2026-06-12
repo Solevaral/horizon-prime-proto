@@ -44,6 +44,7 @@ struct PktAuthOk {
     uint32_t player_id;
     int32_t  sector_x;
     int32_t  sector_y;
+    int32_t  sector_z;
     char     nickname[NICKNAME_MAX_LEN];
 };
 
@@ -64,6 +65,7 @@ struct PktPlayerEvent {
     char     nickname[NICKNAME_MAX_LEN];
     int32_t  sector_x;
     int32_t  sector_y;
+    int32_t  sector_z;
 };
 
 struct PlayerInfo {
@@ -71,6 +73,7 @@ struct PlayerInfo {
     char     nickname[NICKNAME_MAX_LEN];
     int32_t  sector_x;
     int32_t  sector_y;
+    int32_t  sector_z;
 };
 
 struct PktWorldState {
