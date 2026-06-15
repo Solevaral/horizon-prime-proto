@@ -4,7 +4,7 @@ namespace hp {
 
 // Bump whenever the wire format changes. The server requires an exact match and
 // rejects any other client version at connect time.
-constexpr unsigned int   PROTOCOL_VERSION = 3;   // v3: tile-based 3D world
+constexpr unsigned int   PROTOCOL_VERSION = 4;   // v4: multi-location world (ship/station/hangar)
 
 constexpr unsigned short SERVER_PORT      = 7777;
 constexpr int            MAX_PLAYERS      = 64;

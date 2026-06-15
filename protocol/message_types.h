@@ -15,6 +15,7 @@ enum class MsgType : uint8_t {
     C_MOVE_TO       = 0x07,  // intent: walk to tile (tx, ty)
     C_INTERACT      = 0x08,  // intent: interact with an object (object_id + action)
     C_COMMAND       = 0x09,  // ship-terminal text command ("::warp ...")
+    C_MENU_PICK     = 0x0A,  // chose an item in a server-opened menu
 
     // ── Server -> Client ────────────────────────────────────────────────────
     S_AUTH_OK       = 0x10,
@@ -24,6 +25,7 @@ enum class MsgType : uint8_t {
     S_ENTITY_STATE  = 0x19,  // all players currently in this sector (tile positions)
     S_ENTITY_LEAVE  = 0x1A,  // a player left the sector
     S_RIDE_STATE    = 0x1B,  // this player entered/left a ship (camera switch)
+    S_OPEN_MENU     = 0x1C,  // open an interaction menu (lift floors / terminal)
     S_TERM_TEXT     = 0x21,  // a line for the on-board ship terminal
     S_ERROR         = 0x1F,
     S_LOGOUT        = 0x30,  // force client back to login screen

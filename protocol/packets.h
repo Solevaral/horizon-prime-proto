@@ -87,8 +87,9 @@ struct PktServerChat {
 struct PktSectorLoad {
     PacketHeader header;
     int32_t  sector_x, sector_y, sector_z;  // network order
+    int32_t  location_id;                   // LOC_STATION / LOC_HANGAR / LOC_SHIP
     int32_t  tiles_x, tiles_y;              // grid dimensions
-    int32_t  ship_tile_x, ship_tile_y;      // where the ship sits
+    int32_t  ship_tile_x, ship_tile_y;      // (unused legacy field; kept for layout)
     char     star_class;                    // procedural star spectral class
     char     star_name[48];                 // procedural star name
 };
@@ -123,6 +124,33 @@ struct PktTermText {
     PacketHeader header;
     uint8_t      r, g, b;
     char         text[480];
+};
+
+// ── Interaction menus (lift floors, hangar terminal) ─────────────────────────
+constexpr int MENU_MAX_ITEMS = 6;
+constexpr int MENU_LABEL_LEN = 48;
+
+struct MenuItem {
+    uint8_t action;                 // opaque id passed back in C_MENU_PICK
+    uint8_t enabled;                // 0 = greyed out ("You are here")
+    char    label[MENU_LABEL_LEN];
+};
+
+// S_OPEN_MENU: tell the client to show a menu. `menu_id` identifies which object
+// opened it so C_MENU_PICK can be routed back to the right handler.
+struct PktOpenMenu {
+    PacketHeader header;
+    uint8_t      menu_id;           // OBJ_LIFT / OBJ_TERMINAL / ...
+    uint8_t      count;
+    char         title[MENU_LABEL_LEN];
+    MenuItem     items[MENU_MAX_ITEMS];
+};
+
+// C_MENU_PICK: the player chose an item.
+struct PktMenuPick {
+    PacketHeader header;
+    uint8_t      menu_id;
+    uint8_t      action;
 };
 
 #pragma pack(pop)
