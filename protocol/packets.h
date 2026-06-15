@@ -10,13 +10,13 @@ namespace hp {
 
 struct PacketHeader {
     MsgType  type;
-    uint16_t body_len;
+    uint16_t body_len;   // network byte order on the wire
 };
 
 // ── Client -> Server ────────────────────────────────────────────────────────
 
-// First packet the client sends after connecting. The server verifies
-// `version` against PROTOCOL_VERSION and rejects mismatches before auth.
+// First packet after connecting. Server verifies `version` against
+// PROTOCOL_VERSION and rejects mismatches before auth.
 struct PktHello {
     PacketHeader header;
     uint32_t     version;   // network byte order
@@ -39,13 +39,29 @@ struct PktClientChat {
     char text[MESSAGE_MAX_LEN];
 };
 
-struct PktClientInput {
+struct PktClientCommand {
     PacketHeader header;
-    char text[MESSAGE_MAX_LEN];  // raw command line from player
+    char text[MESSAGE_MAX_LEN];   // raw ship-terminal command line
+};
+
+// Intent: walk to a tile. Server validates bounds, paths there one tile/tick.
+struct PktMoveTo {
+    PacketHeader header;
+    int32_t      tile_x;    // network byte order
+    int32_t      tile_y;
+};
+
+// Intent: interact with an object (e.g. board the ship).
+struct PktInteract {
+    PacketHeader header;
+    uint8_t      object_id; // OBJECT_SHIP, ...
+    uint8_t      action;    // 0 = default action
 };
 
 // ── Server -> Client ────────────────────────────────────────────────────────
 
+// Body layout matches the v2 client parser: player_id(4), sector_x(4),
+// sector_y(4), sector_z(4), access(4), nickname(32). All ints network order.
 struct PktAuthOk {
     PacketHeader header;
     uint32_t player_id;
@@ -67,62 +83,44 @@ struct PktServerChat {
     char text[MESSAGE_MAX_LEN];
 };
 
-struct PktPlayerEvent {
+// S_SECTOR_LOAD: describes the sector the player just entered.
+struct PktSectorLoad {
     PacketHeader header;
-    uint32_t player_id;
-    char     nickname[NICKNAME_MAX_LEN];
-    int32_t  sector_x;
-    int32_t  sector_y;
-    int32_t  sector_z;
+    int32_t  sector_x, sector_y, sector_z;  // network order
+    int32_t  tiles_x, tiles_y;              // grid dimensions
+    int32_t  ship_tile_x, ship_tile_y;      // where the ship sits
+    char     star_class;                    // procedural star spectral class
+    char     star_name[48];                 // procedural star name
 };
 
-struct PlayerInfo {
-    uint32_t player_id;
+// One entity in the sector. `tile_x/y` is the authoritative tile; the client
+// interpolates toward it. `riding` = sitting in a ship.
+struct EntityInfo {
+    uint32_t player_id;      // network order
+    int32_t  tile_x;         // network order
+    int32_t  tile_y;
+    uint8_t  riding;         // 0 = on foot, 1 = in ship
+    uint8_t  access;
     char     nickname[NICKNAME_MAX_LEN];
-    int32_t  sector_x;
-    int32_t  sector_y;
-    int32_t  sector_z;
 };
 
-struct PktWorldState {
+// S_ENTITY_STATE: full snapshot of everyone in this player's sector.
+struct PktEntityState {
     PacketHeader header;
-    uint16_t     player_count;
-    PlayerInfo   players[MAX_PLAYERS];
+    uint16_t     count;            // network order
+    EntityInfo   entities[MAX_PLAYERS];
 };
 
-// ── Terminal render packets (Server -> Client) ──────────────────────────────
+// S_RIDE_STATE: this client boarded/left a ship. The client switches camera to
+// the cockpit panel when riding == 1.
+struct PktRideState {
+    PacketHeader header;
+    uint8_t      riding;           // 0 = on foot, 1 = in cockpit
+};
 
-// S_TERM_CLEAR: body is empty
-
-// S_TERM_TEXT: append one styled line to terminal buffer
-// color: 0xRRGGBB packed in 3 bytes (R,G,B)
+// S_TERM_TEXT: one styled line for the on-board ship terminal.
 struct PktTermText {
     PacketHeader header;
-    uint8_t      r, g, b;        // text color
-    uint8_t      flags;          // 0x01=bold, 0x02=dim
-    char         text[480];      // UTF-8 text (null-terminated)
-};
-
-// S_TERM_PROMPT: change the prompt string shown on input line
-struct PktTermPrompt {
-    PacketHeader header;
-    char         text[64];
-};
-
-// S_TERM_SCENE: trigger a built-in fullscreen scene
-// scene_id: 0=starfield, 1=warp, 2=planet, 255=off (return to terminal)
-struct PktTermScene {
-    PacketHeader header;
-    uint8_t      scene_id;
-    uint8_t      duration_sec;   // 0 = indefinite, N = auto-dismiss after N seconds
-    char         params[128];    // scene-specific params (JSON-like string)
-};
-
-// S_TERM_ANIM: replace the last `line_count` lines with new content
-// Used for progress bars, loading animations, live-updating displays
-struct PktTermAnim {
-    PacketHeader header;
-    uint8_t      line_count;     // how many lines to replace (from bottom of buffer)
     uint8_t      r, g, b;
     char         text[480];
 };
